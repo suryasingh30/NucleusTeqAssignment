@@ -1,1 +1,45 @@
 Hello world
+
+cd E:\GitAssignment
+
+Create a New Repository and a New File
+git init
+git add .
+git commit -m "initial commit"
+git remote add origin https://github.com/suryasingh30/gitAssignment
+git push -u origin main
+
+Create a Branch
+git status
+git branch new-branch
+git checkout new-branch
+git status
+git add .
+
+Make Changes in the New Branch
+git commit -m "Added new-branch"
+
+Merge Branches
+git checkout master
+git merge new-branch
+git add .
+git commit -m "branches are merged"
+
+Pull Changes from Remote
+git pull origin master
+
+View Git Log and History
+git log --oneline --graph --all
+git branch -v
+
+Git Status and Staging
+git status
+git add new file.txt
+git add .
+
+Revert & Reset
+git reset HEAD file.txt
+git reset --hard HEAD~1
+git revert <commit-hash>
+
+
