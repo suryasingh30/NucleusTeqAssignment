@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>roll dice game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #04060e;
+        }
+        .container {
+            text-align: center;
+            background-color: rgb(16, 97, 163);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        .game-container {
+            display: none;
+            flex-direction: column;
+            width: 800px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(185, 8, 8, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .players-container {
+            display: flex;
+            width: 100%;
+        }
+        .player {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .player.active {
+            background-color: #5e9fe6;
+        }
+        .dice {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background-color: #e91313;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: white;
+            border-radius: 10px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .player-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 15px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .winner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: gold;
+            padding: 90px;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="nameEntryScreen">
+        <h2>Enter Player Names</h2>
+        <input type="text" id="p1" placeholder="Player 1" required>
+        <input type="text" id="p2" placeholder="Player 2" required>
+        <button id="startGameButton">Start Game</button>
+    </div>
+
+    <div class="game-container" id="gameScreen">
+        <div class="players-container">
+            <div class="player" id="player1">
+                <div class="player-name" id="p1NameDisplay"></div>
+                <h2>Saved Score: <span id="p1SavedScore">0</span></h2>
+                <h3>Current Score: <span id="p1CurrentScore">0</span></h3>
+            </div>
+            <div class="player" id="player2">
+                <div class="player-name" id="p2NameDisplay"></div>
+                <h2>Saved Score: <span id="p2SavedScore">0</span></h2>
+                <h3>Current Score: <span id="p2CurrentScore">0</span></h3>
+            </div>
+        </div>
+
+        <div class="dice" id="diceDisplay">Roll</div>
+
+        <div class="controls">
+            <button id="rollButton">Roll Dice</button>
+            <button id="saveButton">Save Score</button>
+            <button id="resetButton">Reset Game</button>
+        </div>
+    </div>
+
+    <div class="winner" id="winnerModal">
+        <h1 id="winnerName"></h1>
+    </div>
+
+    <script>
+        const nameEntryScreen = document.getElementById('nameEntryScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const p1 = document.getElementById('p1');
+        const p2 = document.getElementById('p2');
+        const startGameButton = document.getElementById('startGameButton');
+
+        const player1Element = document.getElementById('player1');
+        const player2Element = document.getElementById('player2');
+        const p1NameDisplay = document.getElementById('p1NameDisplay');
+        const p2NameDisplay = document.getElementById('p2NameDisplay');
+        const p1SavedScoreDisplay = document.getElementById('p1SavedScore');
+        const p2SavedScoreDisplay = document.getElementById('p2SavedScore');
+        const p1CurrentScoreDisplay = document.getElementById('p1CurrentScore');
+        const p2CurrentScoreDisplay = document.getElementById('p2CurrentScore');
+        const diceDisplay = document.getElementById('diceDisplay');
+        const rollButton = document.getElementById('rollButton');
+        const saveButton = document.getElementById('saveButton');
+        const resetButton = document.getElementById('resetButton');
+        const winnerModal = document.getElementById('winnerModal');
+        const winnerNameDisplay = document.getElementById('winnerName');
+
+        startGameButton.addEventListener('click', function() {
+            if (p1.value.trim() === '' || p2.value.trim() === '') {
+                alert('Please enter names for both players');
+                return;
+            }
+
+            p1NameDisplay.textContent = p1.value;
+            p2NameDisplay.textContent = p2.value;
+
+            nameEntryScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+        });
+
+        let currentPlayer = 1;
+        let player1Score = 0;
+        let player2Score = 0;
+        let p1CurrentScore = 0;
+        let p2CurrentScore = 0;
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            player1Element.classList.toggle('active');
+            player2Element.classList.toggle('active');
+        }
+
+        function rollDice() {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            diceDisplay.textContent = roll;
+
+            if (roll === 1) {
+                if (currentPlayer === 1) {
+                    p1CurrentScore = 0;
+                    p1CurrentScoreDisplay.textContent = 0;
+                } else {
+                    p2CurrentScore = 0;
+                    p2CurrentScoreDisplay.textContent = 0;
+                }
+                switchPlayer();
+            } else {
+                if (currentPlayer === 1) {
+                    p1CurrentScore += roll;
+                    p1CurrentScoreDisplay.textContent = p1CurrentScore;
+                } else {
+                    p2CurrentScore += roll;
+                    p2CurrentScoreDisplay.textContent = p2CurrentScore;
+                }
+            }
+        }
+
+        function saveScore() {
+            if (currentPlayer === 1) {
+                player1Score += p1CurrentScore;
+                p1SavedScoreDisplay.textContent = player1Score;
+                p1CurrentScore = 0;
+                p1CurrentScoreDisplay.textContent = 0;
+                
+                if (player1Score >= 10) {
+                    showWinner(p1NameDisplay.textContent);
+                }
+            } else {
+                player2Score += p2CurrentScore;
+                p2SavedScoreDisplay.textContent = player2Score;
+                p2CurrentScore = 0;
+                p2CurrentScoreDisplay.textContent = 0;
+                
+                if (player2Score >= 10) {
+                    showWinner(p2NameDisplay.textContent);
+                }
+            }
+            switchPlayer();
+        }
+
+        function showWinner(name) {
+            winnerNameDisplay.textContent = `${name} Wins!`;
+            winnerModal.style.display = 'block';
+            rollButton.disabled = true;
+            saveButton.disabled = true;
+        }
+
+        function resetGame() {
+            nameEntryScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+
+            p1.value = '';
+            p2.value = '';
+
+            currentPlayer = 1;
+            player1Score = 0;
+            player2Score = 0;
+            p1CurrentScore = 0;
+            p2CurrentScore = 0;
+            
+            p1SavedScoreDisplay.textContent = 0;
+            p2SavedScoreDisplay.textContent = 0;
+            p1CurrentScoreDisplay.textContent = 0;
+            p2CurrentScoreDisplay.textContent = 0;
+            
+            diceDisplay.textContent = 'Roll';
+            winnerModal.style.display = 'none';
+            
+            player1Element.classList.add('active');
+            player2Element.classList.remove('active');
+            
+            rollButton.disabled = false;
+            saveButton.disabled = false;
+        }
+
+        rollButton.addEventListener('click', rollDice);
+        saveButton.addEventListener('click', saveScore);
+        resetButton.addEventListener('click', resetGame);
+
+        gameScreen.style.display = 'none';
+        player1Element.classList.add('active');
+    </script>
+</body>
+</html>
