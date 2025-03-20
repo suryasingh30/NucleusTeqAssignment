@@ -1,0 +1,8 @@
+Data Types and Operators
+Difference between Primitive and Reference Data Types
+Primitive - Stores actual values (e.g., int, double, char).
+Reference - Stores the memory address of objects (e.g., String, Arrays).
+Example:
+
+int num = 10;  // Primitive
+String name = "Java";  // Reference
