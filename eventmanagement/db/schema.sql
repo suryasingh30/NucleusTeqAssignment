@@ -1,0 +1,63 @@
+-- USER TABLE
+CREATE TABLE users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    wallet_balance DOUBLE NOT NULL DEFAULT 1000.0
+);
+
+-- EVENT TABLE
+CREATE TABLE events (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    creator_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    date_time DATETIME NOT NULL,
+    ticket_price DOUBLE NOT NULL,
+    available_seats INT NOT NULL,
+    FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- BOOKING TABLE
+CREATE TABLE bookings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
+    amount_paid DOUBLE NOT NULL,
+    booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+-- ATTENDEES TABLE
+CREATE TABLE attendees (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- TRANSACTIONS TABLE
+CREATE TABLE transactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NULL,  -- Event reference (NULL for general wallet updates)
+    amount DOUBLE NOT NULL,  -- Positive for CREDIT, Negative for DEBIT
+    transaction_type VARCHAR(50) NOT NULL,  -- CREDIT or DEBIT
+    transaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+-- TO VERIFY DATABASE
+SHOW TABLES;
+
+-- TO CHECK STRUCTURE OF A TATBLE
+DESCRIBE users;
+DESCRIBE events;
+DESCRIBE bookings;
+DESCRIBE attendees;
+DESCRIBE transactions;

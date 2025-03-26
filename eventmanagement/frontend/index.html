@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Event Management Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3457D5; 
+            --secondary-color: #FFB347; 
+            --accent-color: #50C878; 
+            --light-bg: #f8f9fa;
+            --dark-text: #333;
+            --light-text: #fff;
+            --grey-color: #e9ecef;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .navbar-menu a {
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease;
+        }
+        
+        .navbar-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--light-text);
+            border: 2px solid var(--light-text);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(rgba(52, 87, 213, 0.9), rgba(52, 87, 213, 0.7)), url('/api/placeholder/1600/900');
+            background-size: cover;
+            background-position: center;
+            color: var(--light-text);
+            height: 60vh;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--light-text);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        /* Upcoming Events Section */
+        .events {
+            padding: 5rem 2rem;
+            background-color: var(--grey-color);
+        }
+        
+        .events-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .events h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+        }
+        
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .event-card {
+            background-color: var(--light-text);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .event-image {
+            height: 200px;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .event-image i {
+            font-size: 3rem;
+            color: var(--light-text);
+        }
+        
+        .event-details {
+            padding: 1.5rem;
+        }
+        
+        .event-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .event-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .event-info i {
+            margin-right: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .event-description {
+            margin: 1rem 0;
+        }
+        
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .event-slots {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 1.5rem 0;
+        }
+        
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 1.5rem 0;
+        }
+        
+        .social-icons a {
+            color: var(--light-text);
+            font-size: 1.5rem;
+        }
+        
+        /* Auth modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--light-text);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        .switcher {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .switcher a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .switcher a:hover {
+            text-decoration: underline;
+        }
+
+        /* Wallet Box */
+        .wallet-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: var(--light-text);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: var(--shadow);
+            z-index: 1000; /* Ensures it stays on top */
+        }
+
+        .wallet-box i {
+            font-size: 1.5rem;
+        }
+
+        .event-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary-color);
+        }
+
+        .tab-btn:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .navbar-menu {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .auth-buttons {
+                margin-top: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .features-grid, .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-calendar-alt"></i>
+            EventHub
+        </a>
+        <div class="navbar-menu">
+            <a href="index.html">Home</a>
+            <a href="events.html">Events</a>
+            <a href="#" id="nav-dashboard" style="display: none;">Dashboard</a>
+        </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <button class="btn btn-secondary" id="login-btn">Login</button>
+            <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+        </div>
+        <div class="auth-buttons" id="user-menu" style="display: none;">
+            <button class="btn btn-secondary" id="logout-btn">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Discover and Create Amazing Events</h1>
+        <p>Join our platform to find the best events in your area or create your own to connect with like-minded people.</p>
+        <div class="auth-buttons">
+            <button class="btn btn-primary" id="hero-events-btn">Explore Events</button>
+            <button class="btn btn-secondary" id="hero-create-btn">Create Event</button>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <h2>Why Choose EventHub?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <h3>Easy Event Creation</h3>
+                <p>Create and manage your events with our intuitive interface. Set up your event in minutes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <h3>Simple Booking</h3>
+                <p>Attendees can easily find and book tickets for events they're interested in.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Track Attendance</h3>
+                <p>Monitor bookings and manage your event capacity with real-time updates.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events Section -->
+    <section class="events">
+        <div class="events-container">
+            <h2>Events</h2>
+            <div class="event-tabs">
+                <button class="tab-btn active" id="tab-upcoming">Upcoming Events</button>
+                <button class="tab-btn" id="tab-booked">Booked Events</button>
+                <button class="tab-btn" id="tab-my-events">My Events</button>
+            </div>
+            <div class="events-grid" id="events-container">
+                <p style="text-align: center;">Loading events...</p>
+            </div>
+        </div>
+    </section>    
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-calendar-alt"></i> EventHub
+            </div>
+            <p>The perfect platform for organizing and attending events</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="events.html">Events</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <p>&copy; 2025 EventHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Wallet Box -->
+    <div class="wallet-box">
+        <i class="fas fa-wallet"></i>
+        <span id="wallet-balance">₹0</span>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-login">&times;</span>
+            <h2>Login to Your Account</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div class="switcher">
+                <p>Don't have an account? <a id="switch-to-signup">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-signup">&times;</span>
+            <h2>Create a New Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+            </form>
+            <div class="switcher">
+                <p>Already have an account? <a id="switch-to-login">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let userToken = localStorage.getItem('userToken');
+        let userId = localStorage.getItem('userId');
+
+        // Check authentication status
+        function checkAuth() {
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const navDashboard = document.getElementById('nav-dashboard');
+
+            if (userToken) {
+                authButtons.style.display = 'none';
+                userMenu.style.display = 'flex';
+                navDashboard.style.display = 'block';
+                navDashboard.href = 'dashboard.html';
+            } else {
+                authButtons.style.display = 'flex';
+                userMenu.style.display = 'none';
+                navDashboard.style.display = 'none';
+            }
+        }
+
+        // Load upcoming events
+        async function loadEvents(eventType = "upcoming") {
+            const userToken = localStorage.getItem("userToken");
+            const userId = localStorage.getItem("userId");
+
+            if (!userToken || !userId) {
+                console.error("No token found! User must log in first.");
+                return;
+            }
+
+            let apiUrl;
+            switch (eventType) {
+                case "booked":
+                    apiUrl = `${API_URL}/events/user-booked?userId=${userId}`;
+                    break;
+                case "my-events":
+                    apiUrl = `${API_URL}/events/my-events?userId=${userId}`;
+                    break;
+                default:
+                    apiUrl = `${API_URL}/events/upcoming`;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch events");
+
+                const events = await response.json();
+                renderEvents(events, eventType);
+            } catch (error) {
+                console.error("Error loading events:", error);
+                document.getElementById("events-container").innerHTML = `
+                    <p style="text-align: center; color: red;">Failed to load events.</p>`;
+            }
+        }
+
+        function renderEvents(events, eventType) {
+            const eventsContainer = document.getElementById("events-container");
+            eventsContainer.innerHTML = "";
+
+            if (events.length === 0) {
+                eventsContainer.innerHTML = `<p style="text-align: center;">No events available.</p>`;
+                return;
+            }
+
+            events.forEach(event => {
+                const eventDate = new Date(event.dateTime).toLocaleDateString();
+                const eventTime = new Date(event.dateTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+                let buttonHtml = "";
+                if (eventType === "booked") {
+                    buttonHtml = `<button class="btn btn-danger" onclick="cancelBooking(${event.id})">Cancel</button>`;
+                } else if (eventType === "upcoming") {
+                    buttonHtml = `<button class="btn btn-primary" onclick="bookEvent(${event.id})">Book Now</button>`;
+                } else if (eventType === "my-events") {
+                    buttonHtml = `<button class="btn btn-secondary" onclick="editEvent(${event.id})">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteEvent(${event.id})">Delete</button>`;
+                }
+
+                // ✅ Add an ID to each event card for easy removal
+                eventsContainer.innerHTML += `
+                    <div class="event-card" id="event-${event.id}">
+                        <div class="event-image">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="event-details">
+                            <h3 class="event-title">${event.title}</h3>
+                            <div class="event-info">
+                                <i class="fas fa-calendar"></i>
+                                <span>${eventDate}</span>
+                            </div>
+                            <div class="event-info">
+                                <i class="fas fa-clock"></i>
+                                <span>${eventTime}</span>
+                            </div>
+                            <div class="event-info">
+                                <i class="fas fa-tag"></i>
+                                <span>${event.category || "General"}</span>
+                            </div>
+                            <div class="event-info">
+                                <i class="fas fa-ticket-alt"></i>
+                                <span>₹${event.ticketPrice.toFixed(2)}</span>
+                            </div>
+                            <div class="event-footer">
+                                <span class="event-slots">
+                                    <i class="fas fa-users"></i> ${event.availableSeats || "Unlimited"} slots available
+                                </span>
+                                ${buttonHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // **4️⃣ Add Event Listeners for Tabs**
+        document.getElementById("tab-upcoming").addEventListener("click", () => {
+            loadEvents("upcoming");
+            setActiveTab("tab-upcoming");
+        });
+        document.getElementById("tab-booked").addEventListener("click", () => {
+            loadEvents("booked");
+            setActiveTab("tab-booked");
+        });
+        document.getElementById("tab-my-events").addEventListener("click", () => {
+            loadEvents("my-events");
+            setActiveTab("tab-my-events");
+        });
+
+        // **5️⃣ Function to Highlight Active Tab**
+        function setActiveTab(activeTabId) {
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(activeTabId).classList.add("active");
+        }
+
+        // **6️⃣ Initialize Events on Page Load**
+        document.addEventListener("DOMContentLoaded", () => {
+            loadEvents("upcoming"); // Default to upcoming events
+        });
+
+        async function updateWalletBalance() {
+            const userToken = localStorage.getItem("userToken");
+            const userId = localStorage.getItem("userId");
+
+            if (!userToken || !userId) {
+                console.error("No token found! User must log in first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/wallet?userId=${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch wallet balance");
+
+                const data = await response.json();
+                document.getElementById("wallet-balance").textContent = `₹${data.walletBalance.toFixed(2)}`;
+            } catch (error) {
+                console.error("Error fetching wallet balance:", error);
+            }
+        }
+
+        // Call the function after login
+        document.addEventListener("DOMContentLoaded", () => {
+            updateWalletBalance();
+        });
+
+        async function bookEvent(eventId) {
+            const userToken = localStorage.getItem("userToken");
+            const userId = localStorage.getItem("userId");
+
+            if (!userToken || !userId) {
+                console.error("No token found! User must log in first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/bookings/book?userId=${userId}&eventId=${eventId}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to book event");
+
+                alert("Booking successful!");
+                loadEvents();
+            } catch (error) {
+                console.error("Error booking event:", error);
+            }
+        }
+
+        async function cancelBooking(eventId) {
+            const userToken = localStorage.getItem("userToken");
+            const userId = localStorage.getItem("userId");
+
+            if (!userToken || !userId) {
+                console.error("No token found! User must log in first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/bookings/cancel?userId=${userId}&eventId=${eventId}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to cancel booking");
+
+                alert("Booking cancelled successfully!");
+                loadEvents();
+            } catch (error) {
+                console.error("Error canceling booking:", error);
+            }
+        }
+
+        async function deleteEvent(eventId) {
+            const userToken = localStorage.getItem("userToken");
+            const userId = localStorage.getItem("userId");
+
+            if (!userToken || !userId) {
+                console.error("No token found! User must log in first.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/events/delete/${eventId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${userToken}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Failed to delete event");
+
+                document.getElementById(`event-${eventId}`).remove();
+
+                alert("Event deleted successfully!");
+            } catch (error) {
+                console.error("Error deleting event:", error);
+            }
+        }
+
+        // Modal functions
+        function setupModals() {
+            // Login modal
+            const loginModal = document.getElementById('login-modal');
+            const loginBtn = document.getElementById('login-btn');
+            const closeLogin = document.getElementById('close-login');
+            
+            loginBtn.addEventListener('click', () => {
+                loginModal.style.display = 'flex';
+            });
+            
+            closeLogin.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+            
+            // Signup modal
+            const signupModal = document.getElementById('signup-modal');
+            const signupBtn = document.getElementById('signup-btn');
+            const closeSignup = document.getElementById('close-signup');
+            
+            signupBtn.addEventListener('click', () => {
+                signupModal.style.display = 'flex';
+            });
+            
+            closeSignup.addEventListener('click', () => {
+                signupModal.style.display = 'none';
+            });
+            
+            // Switch between modals
+            document.getElementById('switch-to-signup').addEventListener('click', () => {
+                loginModal.style.display = 'none';
+                signupModal.style.display = 'flex';
+            });
+            
+            document.getElementById('switch-to-login').addEventListener('click', () => {
+                signupModal.style.display = 'none';
+                loginModal.style.display = 'flex';
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+                if (e.target === signupModal) {
+                    signupModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (!response.ok) throw new Error('Login failed');
+                
+                const data = await response.json();
+                
+                // Save token and user info
+                localStorage.setItem('userToken', data.token);
+                localStorage.setItem('userId', data.userId || '1');
+                
+                // Update UI
+                document.getElementById('login-modal').style.display = 'none';
+                checkAuth();
+                
+                // Reload page or redirect
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please check your credentials and try again.');
+            }
+        });
+
+        // Handle signup form submission
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/users/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                if (!response.ok) throw new Error('Signup failed');
+                
+                const data = await response.json();
+                
+                // Save token and user info
+                localStorage.setItem('userToken', data.token);
+                localStorage.setItem('userId', data.userId || '1');
+                
+                // Update UI
+                document.getElementById('signup-modal').style.display = 'none';
+                checkAuth();
+                
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                alert('Signup failed. Please try again.');
+            }
+        });
+
+        // Handle logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userId');
+            checkAuth();
+            window.location.reload();
+        });
+
+        // Hero buttons
+        document.getElementById('hero-events-btn').addEventListener('click', () => {
+            window.location.href = 'events.html';
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadEvents();
+            setupModals();
+        });
+    </script>
+    <!-- Create Event Modal -->
+<div class="modal" id="create-event-modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-create-event">&times;</span>
+        <h2>Create New Event</h2>
+        <form id="create-event-form">
+            <div class="form-group">
+                <label for="event-title">Event Title</label>
+                <input type="text" id="event-title" required>
+            </div>
+            <div class="form-group">
+                <label for="event-description">Description</label>
+                <textarea id="event-description" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="event-date-time">Date and Time</label>
+                <input type="datetime-local" id="event-date-time" required>
+            </div>
+            <div class="form-group">
+                <label for="event-category">Category</label>
+                <select id="event-category" required>
+                    <option value="">Select a category</option>
+                    <option value="Conference">Conference</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="Seminar">Seminar</option>
+                    <option value="Celebration">Celebration</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="event-price">Ticket Price</label>
+                <input type="number" id="event-price" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="event-seats">Available Seats</label>
+                <input type="number" id="event-seats" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Event</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add this to your existing script section -->
+<script>
+    function setupCreateEventModal() {
+        const createEventModal = document.getElementById('create-event-modal');
+        const createEventBtn = document.getElementById('hero-create-btn');
+        const closeCreateEvent = document.getElementById('close-create-event');
+        
+        createEventBtn.addEventListener('click', () => {
+            if (!userToken) {
+                document.getElementById('login-modal').style.display = 'flex';
+            } else {
+                createEventModal.style.display = 'flex';
+            }
+        });
+        
+        closeCreateEvent.addEventListener('click', () => {
+            createEventModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === createEventModal) {
+                createEventModal.style.display = 'none';
+            }
+        });
+        
+        // Handle create event form submission
+        document.getElementById('create-event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const eventData = {
+                title: document.getElementById('event-title').value,
+                description: document.getElementById('event-description').value,
+                dateTime: document.getElementById('event-date-time').value,
+                category: document.getElementById('event-category').value,
+                ticketPrice: parseFloat(document.getElementById('event-price').value),
+                availableSeats: parseInt(document.getElementById('event-seats').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/events/create?userId=${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${userToken}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+                
+                if (!response.ok) throw new Error('Failed to create event');
+                
+                const data = await response.json();
+                
+                // Close modal and show success message
+                createEventModal.style.display = 'none';
+                alert('Event created successfully!');
+                
+                // Reload events or redirect to event details
+                loadEvents();
+                
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Failed to create event. Please try again.');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuth();
+        loadEvents();
+        setupModals();
+        setupCreateEventModal();
+    });
+</script>
+</body>
+</html>
+
