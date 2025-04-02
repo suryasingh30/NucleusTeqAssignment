@@ -1,12 +1,13 @@
 package com.example.eventmanagement.service;
 
-import com.example.eventmanagement.models.Booking;
-import com.example.eventmanagement.models.Event;
-import com.example.eventmanagement.models.User;
+import com.example.eventmanagement.models.*;
 import com.example.eventmanagement.repository.BookingRepository;
 import com.example.eventmanagement.repository.EventRepository;
 import com.example.eventmanagement.repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,40 +20,53 @@ public class EventService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
 
-    private EventService(EventRepository eventRepository, UserRepository userRepository, BookingRepository bookingRepository){
+    public EventService(EventRepository eventRepository, UserRepository userRepository, BookingRepository bookingRepository){
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')")
     public Event createEvent(Long userId, Event event){
         User creator = userRepository.findById(userId)
                         .orElseThrow(() -> new RuntimeException("User not found"));
         event.setCreator(creator);
-    return eventRepository.save(event);
+        return eventRepository.save(event);
     }
 
-    public Event editEvent(Long eventId, Event updatedEvent){
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public Event editEvent(Long eventId, Event updatedEvent) {
         Event event = eventRepository.findById(eventId)
-                        .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+    
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInEmail = authentication.getName();
+        
+        if (!event.getCreator().getEmail().equals(loggedInEmail)) {
+            throw new RuntimeException("You are not authorized to edit this event.");
+        }
+    
         event.setTitle(updatedEvent.getTitle());
         event.setDescription(updatedEvent.getDescription());
         event.setDateTime(updatedEvent.getDateTime());
         event.setTicketPrice(updatedEvent.getTicketPrice());
         event.setAvailableSeats(updatedEvent.getAvailableSeats());
         event.setCategory(updatedEvent.getCategory());
-    return eventRepository.save(event);
+    
+        return eventRepository.save(event);
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')")
     public void deleteEvent(Long eventId){
         eventRepository.deleteById(eventId);
     }
 
-    public List<Event> getAllEvent(){
+    public List<Event> getAllEvents(){
         return eventRepository.findAll();
     }
 
-    public List<Event> getEventsCreator(Long creatorId){
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public List<Event> getMyEvents(Long creatorId){
         return eventRepository.findByCreatorId(creatorId);
     }
 
@@ -78,20 +92,21 @@ public class EventService {
         }
     
         return eventRepository.findAll();
-    }    
+    }
 
     public List<Event> getUpcomingEvents() {
         return eventRepository.findUpcomingEvents();
     }
 
+    public List<Event> getAllEvent(){
+        return eventRepository.findAll();
+    }
+
+    @PreAuthorize("hasRole('ATTENDEE')")
     public List<Event> getUserBookedEvents(Long userId) {
         return bookingRepository.findByUserId(userId)
             .stream()
             .map(Booking::getEvent)
             .collect(Collectors.toList());
-    }
-
-    public List<Event> getMyEvents(Long userId) {
-        return eventRepository.findByCreatorId(userId);
     }
 }

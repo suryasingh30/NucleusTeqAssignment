@@ -21,10 +21,17 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody Map<String, String> request){
-        String token = authService.register(request.get("name"), request.get("email"), request.get("password"));
-        return ResponseEntity.ok(Map.of("message", "User registered successfully", "token", token));
-    }
+public ResponseEntity<?> registerUser(@RequestBody Map<String, String> request) {
+    String token = authService.register(request.get("name"), request.get("email"), request.get("password"), request.get("role"));
+    User user = userRepository.findByEmail(request.get("email")).orElseThrow(() -> new RuntimeException("User not found"));
+
+    return ResponseEntity.ok(Map.of(
+        "message", "User registered successfully",
+        "token", token,
+        "userId", user.getId()
+    ));
+}
+
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> request) {

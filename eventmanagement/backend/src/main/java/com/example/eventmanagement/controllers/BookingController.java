@@ -5,8 +5,8 @@ import com.example.eventmanagement.service.BookingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
-
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -17,22 +17,33 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+    @PreAuthorize("hasRole('ATTENDEE')")
     @PostMapping("/book")
-    public ResponseEntity<String> bookEvent(@RequestParam Long userId, @RequestParam Long eventId) {
-        String message = bookingService.bookEvent(userId, eventId);
+    public ResponseEntity<String> bookEvent(@RequestParam Long eventId, Authentication authentication) {
+        String message = bookingService.bookEvent(eventId, authentication);
         return ResponseEntity.ok(message);
     }
 
+    @PreAuthorize("hasRole('ATTENDEE')")
     @PostMapping("/cancel")
-    public ResponseEntity<String> cancelBooking(@RequestParam Long userId, @RequestParam Long eventId) {
-        String message = bookingService.cancelBooking(userId, eventId);
+    public ResponseEntity<String> cancelBooking(@RequestParam Long eventId, Authentication authentication) {
+        String message = bookingService.cancelBooking(eventId, authentication);
         return ResponseEntity.ok(message);
     }
 
+    @PreAuthorize("hasRole('ATTENDEE')")
     @GetMapping("/user")
-    public ResponseEntity<List<Booking>> getUserBookings(@RequestParam Long userId, Authentication authentication) {
-        String authenticatedUserEmail = authentication.getName();
-        List<Booking> userBookings = bookingService.getUserBookings(userId, authenticatedUserEmail);
+    public ResponseEntity<List<Booking>> getUserBookings(Authentication authentication) {
+        List<Booking> userBookings = bookingService.getUserBookings(authentication);
         return ResponseEntity.ok(userBookings);
     }
+
+    @PreAuthorize("hasRole('ATTENDEE')")
+@GetMapping("/isBooked")
+public ResponseEntity<Boolean> isEventBooked(@RequestParam Long eventId, Authentication authentication) {
+    String userEmail = authentication.getName();
+    boolean isBooked = bookingService.isEventBooked(userEmail, eventId);
+    return ResponseEntity.ok(isBooked);
+}
+
 }

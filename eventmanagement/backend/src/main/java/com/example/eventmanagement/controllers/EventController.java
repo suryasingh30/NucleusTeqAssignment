@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -18,22 +20,28 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')")
     @PostMapping("/create")
     public ResponseEntity<?> createEvent(@RequestParam Long userId, @RequestBody Event event){
         Event createdEvent = eventService.createEvent(userId, event);
-    return ResponseEntity.ok(createdEvent);
+        return ResponseEntity.ok(createdEvent);
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')")
     @PutMapping("/edit/{eventId}")
-    public ResponseEntity<?> editEvent(@PathVariable Long eventId, @RequestBody Event updatedEvent){
-        Event event = eventService.editEvent(eventId, updatedEvent);
-    return ResponseEntity.ok(event);
-    }
+public ResponseEntity<?> editEvent(@PathVariable Long eventId, @RequestBody Event updatedEvent) {
+    System.out.println("Received eventId: " + eventId);
+    System.out.println("Received updatedEvent: " + updatedEvent);
 
+    Event event = eventService.editEvent(eventId, updatedEvent);
+    return ResponseEntity.ok(event);
+}
+
+    @PreAuthorize("hasRole('ORGANIZER')")
     @DeleteMapping("delete/{eventId}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long eventId){
         eventService.deleteEvent(eventId);
-    return ResponseEntity.ok("Event deleted Successfully");
+        return ResponseEntity.ok("Event deleted Successfully");
     }
 
     @GetMapping("/all")
@@ -41,10 +49,10 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvent());
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{eventId}")
     public ResponseEntity<?> getEventById(@PathVariable Long eventId){
         Optional<Event> event = eventService.getEventById(eventId);
-    return event.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return event.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/search")
@@ -65,12 +73,14 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    @PreAuthorize("hasRole('ATTENDEE')")  
     @GetMapping("/user-booked")
     public ResponseEntity<List<Event>> getUserBookedEvents(@RequestParam Long userId) {
         List<Event> bookedEvents = eventService.getUserBookedEvents(userId);
         return ResponseEntity.ok(bookedEvents);
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')") 
     @GetMapping("/my-events")
     public ResponseEntity<List<Event>> getMyEvents(@RequestParam Long userId) {
         List<Event> myEvents = eventService.getMyEvents(userId);

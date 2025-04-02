@@ -48,9 +48,9 @@ public class JwtUtil {
         try {
             return extractUsername(token).equals(userEmail) && !isTokenExpired(token);
         } catch (ExpiredJwtException e) {
-            return false; 
+            return false;
         } catch (Exception e) {
-            return false; 
+            return false;
         }
     }
 }

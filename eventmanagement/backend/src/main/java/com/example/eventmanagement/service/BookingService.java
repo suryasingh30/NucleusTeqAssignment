@@ -5,10 +5,10 @@ import com.example.eventmanagement.repository.BookingRepository;
 import com.example.eventmanagement.repository.TransactionRepository;
 import com.example.eventmanagement.repository.UserRepository;
 import com.example.eventmanagement.repository.EventRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.List;
 
 @Service
@@ -18,8 +18,7 @@ public class BookingService {
     private final EventRepository eventRepository;
     private final TransactionRepository transactionRepository;
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, 
-                            EventRepository eventRepository, TransactionRepository transactionRepository){
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository,EventRepository eventRepository, TransactionRepository transactionRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
@@ -27,21 +26,21 @@ public class BookingService {
     }
 
     @Transactional
-    public String bookEvent(Long userId, Long eventId){
-        Optional<User> userOptional = userRepository.findById(userId);
-        Optional<Event> eventOptional = eventRepository.findById(eventId);
+    public String bookEvent(Long eventId, Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if(userOptional.isEmpty() || eventOptional.isEmpty())
-            return "User or Event not found";
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        User user = userOptional.get();
-        Event event = eventOptional.get();
-
-        if(event.getAvailableSeats() <= 0)
+        if (event.getAvailableSeats() <= 0) {
             return "No seats available for this event!";
+        }
 
-        if(user.getWalletBalance() < event.getTicketPrice())
+        if (user.getWalletBalance() < event.getTicketPrice()) {
             return "Insufficient balance in Wallet!";
+        }
 
         user.setWalletBalance(user.getWalletBalance() - event.getTicketPrice());
         userRepository.save(user);
@@ -53,7 +52,7 @@ public class BookingService {
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setEvent(event);
-        booking.setAmount_paid(event.getTicketPrice());
+        booking.setAmountPaid(event.getTicketPrice()); 
         bookingRepository.save(booking);
 
         Transaction debitTransaction = new Transaction(user, event, -event.getTicketPrice(), "DEBIT");
@@ -62,28 +61,22 @@ public class BookingService {
         transactionRepository.save(debitTransaction);
         transactionRepository.save(creditTransaction);
 
-        event.setAvailableSeats(event.getAvailableSeats()-1);
+        event.setAvailableSeats(event.getAvailableSeats() - 1);
         eventRepository.save(event);
 
         return "Booking Successful!";
     }
 
     @Transactional
-    public String cancelBooking(Long userId, Long eventId) {
-        Optional<Booking> bookingOptional = bookingRepository.findByUserIdAndEventId(userId, eventId);
+    public String cancelBooking(Long eventId, Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (bookingOptional.isEmpty()) {
-            return "Booking not found!";
-        }
-
-        Booking booking = bookingOptional.get();
-
-        if (!booking.getUser().getId().equals(userId)) {
-            return "You can only cancel your own bookings!";
-        }
+        Booking booking = bookingRepository.findByUserIdAndEventId(user.getId(), eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found!"));
 
         Event event = booking.getEvent();
-        User user = booking.getUser();
         User eventCreator = event.getCreator();
 
         user.setWalletBalance(user.getWalletBalance() + booking.getAmountPaid());
@@ -103,14 +96,18 @@ public class BookingService {
         return "Booking successfully cancelled. Amount refunded!";
     }
 
-    public List<Booking> getUserBookings(Long userId, String authenticatedUserEmail) {
-        User user = userRepository.findById(userId)
+    public List<Booking> getUserBookings(Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (!user.getEmail().equals(authenticatedUserEmail)) {
-            throw new SecurityException("Unauthorized: You can only fetch your own bookings.");
-        }
-
-        return bookingRepository.findByUserId(userId);
+        return bookingRepository.findByUserId(user.getId());
     }
+
+    public boolean isEventBooked(String userEmail, Long eventId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return bookingRepository.findByUserIdAndEventId(user.getId(), eventId).isPresent();
+    }
+    
 }

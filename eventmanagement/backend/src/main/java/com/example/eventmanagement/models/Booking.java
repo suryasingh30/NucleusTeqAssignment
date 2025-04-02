@@ -11,11 +11,10 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "bookings")
-
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -26,17 +25,14 @@ public class Booking {
     private Event event;
 
     @Column(name = "amount_paid", nullable = false)
-    private double amount_paid;
+    private double amountPaid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "booking_time", nullable = false, updatable = false)
-    private Date bookingTime = new Date();
-    
-    public double getAmountPaid(){
-        return amount_paid;
-    }
+    private Date bookingTime;
 
-    public void setAmountPaid(double amount_paid) {
-        this.amount_paid = amount_paid;
+    @PrePersist
+    protected void onCreate() {
+        this.bookingTime = new Date();  // Automatically sets booking time when persisted
     }
 }

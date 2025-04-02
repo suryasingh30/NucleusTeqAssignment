@@ -7,8 +7,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
-
 @Service
 public class AuthService {
 
@@ -22,7 +20,11 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public String register(String name, String email, String password){
+    public enum UserRole {
+        ORGANIZER, ATTENDEE;
+    }
+
+    public String register(String name, String email, String password, String role){
         
         Optional<User> existingUser = userRepository.findByEmail(email);
         if(existingUser.isPresent())
@@ -33,6 +35,7 @@ public class AuthService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setWalletBalance(1000.0);
+        user.setRole(User.UserRole.valueOf(role.toUpperCase()));
         
         userRepository.save(user);
 
