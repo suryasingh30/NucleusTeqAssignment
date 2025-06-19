@@ -21,17 +21,21 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-public ResponseEntity<?> registerUser(@RequestBody Map<String, String> request) {
-    String token = authService.register(request.get("name"), request.get("email"), request.get("password"), request.get("role"));
-    User user = userRepository.findByEmail(request.get("email")).orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, String> request) {
+        // Register the user and get the JWT token
+        String token = authService.register(request.get("name"), request.get("email"), request.get("password"), request.get("role"));
+        
+        // Find the user to get the user ID
+        User user = userRepository.findByEmail(request.get("email")).orElseThrow(() -> new RuntimeException("User not found"));
 
-    return ResponseEntity.ok(Map.of(
-        "message", "User registered successfully",
-        "token", token,
-        "userId", user.getId()
-    ));
-}
-
+        // Return a successful response with token and user ID
+        return ResponseEntity.ok(Map.of(
+            "message", "User registered successfully",
+            "token", token,
+            "userId", user.getId(),
+            "role", user.getRole().toString() // Returning the user's role
+        ));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> request) {

@@ -7,21 +7,25 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import java.util.List;
 
 @Component
 public class JwtUtil {
 
     private static final String SECRET_KEY = "this-is-a-very-secure-secret-key-surya-12345678";
-    private static final long JWT_EXPIRATION_MS = 86400000; 
+    private static final long JWT_EXPIRATION_MS = 86400000;  // 24 hours
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
-    public String generateToken(String email) {
+    public String generateToken(String username, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("roles", roles); // Add roles to the claims
+        
         return Jwts.builder()
-                .setSubject(email)
+                .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_MS))
-                .signWith(key)
+                .signWith(SignatureAlgorithm.HS256, key)  // Use key for signing
                 .compact();
     }
 
@@ -32,6 +36,15 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return (List<String>) claims.get("roles");
     }
 
     private boolean isTokenExpired(String token){

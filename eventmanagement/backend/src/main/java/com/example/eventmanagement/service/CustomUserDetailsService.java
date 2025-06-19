@@ -18,18 +18,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        
-        if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException("User not found with email: " + email);
-        }
-
-        User user = userOptional.get();
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword()) 
-                .roles("USER") 
-                .build();
+public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    Optional<User> userOptional = userRepository.findByEmail(email);
+    if (userOptional.isEmpty()) {
+        throw new UsernameNotFoundException("User not found with email: " + email);
     }
+
+    User user = userOptional.get();
+    String role = "ROLE_" + user.getRole().name(); // Add ROLE_ prefix
+
+    return org.springframework.security.core.userdetails.User.builder()
+            .username(user.getEmail())
+            .password(user.getPassword())
+            .roles(role) // Dynamically assign the correct role with ROLE_ prefix
+            .build();
+}
+
 }
