@@ -25,6 +25,14 @@ def get_product(product_id: int, db: Session = Depends(get_db), user = Depends(a
         raise HTTPException(status_code=404, detail="product not found")
     return product
 
+@router.post("/", response_model=ProductOut)
+def create_product(product_data: ProductCreate, db: Session = Depends(get_db), user = Depends(admin_required)):
+    product = Product(**product_data.dict())
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return product
+
 @router.put("/{product_id}", response_model=ProductOut)
 def update__product(product_id: int, product_data: ProductUpdate, db: Session=Depends(get_db), user = Depends(admin_required)):
     product = db.query(Product).filter(Product.id == product_id).first()

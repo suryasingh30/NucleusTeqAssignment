@@ -7,5 +7,5 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     description = Column(Text)
-    prime = Column(Float, nullable=False)
+    price = Column(Float, nullable=False)
     quantity = Column(Integer, default=0)
