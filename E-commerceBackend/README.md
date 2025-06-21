@@ -152,18 +152,3 @@ This project is a modular, scalable **Ecommerce Backend API** developed using **
 - **Order history** tracking per user
 
 This backend mimics real systems like Amazon/Flipkart and can be extended with payment processing and admin dashboards.
-
----
-
-## 👨‍💻 Author
-
-**Surya Singh** – Full-stack Developer  
-📧 Email: your.email@example.com  
-🔗 GitHub: [github.com/yourusername](https://github.com/yourusername)  
-🔗 LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
