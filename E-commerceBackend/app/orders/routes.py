@@ -4,8 +4,10 @@ from app.core.database import SessionLocal
 from app.models.cart import CartItem
 from app.models.order import Order, OrderItem
 from app.models.product import Product
+from app.orders.schemas import OrderOut
+from app.models.order import Order
 from app.auth.dependencies import get_current_user
-from typing import cast
+from typing import cast, List
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -15,6 +17,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@router.get("/", response_model=List[OrderOut])
+def get_user_orders(db: Session = Depends(get_db), user = Depends(get_current_user)):
+    return db.query(Order).filter(Order.user_id == user.id).all()
+
+@router.get("/{order_id}", response_model=OrderOut)
+def get_single_order(order_id: int, db: Session = Depends(get_db), user  =  Depends(get_current_user)):
+    order = db.query(Order).filter_by(id = order_id).first()
+
+    if not order:
+        raise HTTPException(status_code=401, detail="order not found")
+    return order
 
 @router.post("/checkout")
 def checkout(db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -54,3 +68,5 @@ def checkout(db: Session = Depends(get_db), user=Depends(get_current_user)):
     db.commit()
 
     return {"message": "checkout successful,order created.", "order_id": order.id}
+
+
